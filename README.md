@@ -1,11 +1,13 @@
-# SmartSite 智慧工地项目
+## SmartSite 智慧工地项目
+ 
+   本仓库包含完整的开源代码与文档，涵盖四大模块：
+ - HarmonyOS 移动端 — 现场数据采集与实时监控
+ - 嵌入式感知端 — 环境传感器数据采集
+ - AI 安全帽检测 — 基于深度学习的施工人员安全帽佩戴识别
+ - 项目文档 — 设计说明、部署指南与最终提交材料
 
-本仓库为“智慧工地：现场安全与材料环境管理系统”的开源代码仓库，包含 HarmonyOS 移动端、嵌入式感知端、AI 安全帽检测、项目文档和最终提交说明。
-
-仓库地址：
-
-https://github.com/SKY-shenzi/SmartSite
-
+   仓库地址：https://github.com/SKY-shenzi/SmartSite
+   
 ## 成果物位置
 
 - `harmony/`: HarmonyOS/ArkTS/ArkUI 移动端工程，来自 DevEco Studio 项目 `MyApplication2` 的整理版。
