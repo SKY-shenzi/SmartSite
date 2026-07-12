@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>smart site twin</title>
+  <style>
+    html, body, #app {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #eef3f8;
+      font-family: Arial, sans-serif;
+    }
+    .status {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      z-index: 20;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(23, 105, 224, .92);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      pointer-events: none;
+    }
+    .tip {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      top: 45%;
+      z-index: 5;
+      color: #4b5563;
+      text-align: center;
+      font-size: 13px;
+      line-height: 22px;
+    }
+    #fallbackShare {
+      display: none;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #eef3f8;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <iframe id="fallbackShare" src="https://thingjsx43.thingjs.com/thing/share/6ejhf5jtci0v0mtk"></iframe>
+  <div class="status" id="status">3D 加载中</div>
+  <div class="tip" id="tip">正在加载 ThingJS 场景...</div>
+
+  <script src="https://cdn.uino.cn/thingjs/thing.min.js"></script>
+  <script>
+    var SCENE_URL = 'https://thingjs.com/api/scene/447d0b285b7d25298bdc0082';
+    var API_BASE = 'http://172.22.54.210:8088';
+    var app = null;
+    var loaded = false;
+
+    var devices = {
+      cement_zone: {
+        temp: 'cement_sensor_WEN',
+        humi: 'cement_sensor_SHI',
+        fan: 'cement_sensor_FEN',
+        lamp: 'cement_sensor_DEN'
+      },
+      timber_zone: {
+        temp: 'timber_sensor_WEN',
+        humi: 'timber_sensor_SHI',
+        fan: 'timber_sensor_FEN',
+        lamp: 'timber_sensor_DEN'
+      }
+    };
+
+    function setStatus(text) {
+      var node = document.getElementById('status');
+      if (node) {
+        node.innerText = text;
+      }
+    }
+
+    function hideTip() {
+      var node = document.getElementById('tip');
+      if (node) {
+        node.style.display = 'none';
+      }
+    }
+
+    function showTip(text) {
+      var node = document.getElementById('tip');
+      if (node) {
+        node.innerText = text;
+        node.style.display = 'block';
+      }
+    }
+
+    function showShareFallback() {
+      var appNode = document.getElementById('app');
+      var shareNode = document.getElementById('fallbackShare');
+      if (appNode) {
+        appNode.style.display = 'none';
+      }
+      if (shareNode) {
+        shareNode.style.display = 'block';
+      }
+    }
+
+    function getObject(name) {
+      if (!app || !app.query) {
+        return null;
+      }
+      var result = app.query(name);
+      if (result && result.length > 0) {
+        return result[0];
+      }
+      return null;
+    }
+
+    function setObjectColor(name, color) {
+      var object = getObject(name);
+      if (!object) {
+        console.warn('object not found:', name);
+        return;
+      }
+      if (object.style) {
+        object.style.color = color;
+        object.style.outlineColor = color;
+      }
+    }
+
+    function getState(zoneCode, row) {
+      if (!row) {
+        return { color: '#94a3b8', fan: false, lamp: false, text: '等待数据' };
+      }
+      var temp = Number(row.temp);
+      var humi = Number(row.humi);
+      if (zoneCode === 'cement_zone') {
+        if (temp >= 32 || humi >= 60) {
+          return { color: '#ef4444', fan: true, lamp: true, text: '异常' };
+        }
+        if (temp >= 30 || humi >= 56) {
+          return { color: '#f59e0b', fan: false, lamp: true, text: '预警' };
+        }
+        return { color: '#10b981', fan: false, lamp: row.lamp_status === 'ON', text: '正常' };
+      }
+      if (temp >= 30 || humi <= 35 || humi >= 65) {
+        return { color: '#ef4444', fan: true, lamp: true, text: '异常' };
+      }
+      if (temp >= 28 || humi <= 40) {
+        return { color: '#f59e0b', fan: false, lamp: true, text: '预警' };
+      }
+      return { color: '#10b981', fan: false, lamp: row.lamp_status === 'ON', text: '正常' };
+    }
+
+    function updateZone(zoneCode, row) {
+      var names = devices[zoneCode];
+      var state = getState(zoneCode, row);
+      setObjectColor(names.temp, state.color);
+      setObjectColor(names.humi, state.color);
+      setObjectColor(names.fan, state.fan ? '#2563eb' : '#94a3b8');
+      setObjectColor(names.lamp, state.lamp ? '#facc15' : '#64748b');
+      console.log(zoneCode, state.text, row);
+    }
+
+    async function fetchLatest(zoneCode) {
+      var url = API_BASE + '/api/material-records?zoneCode=' + encodeURIComponent(zoneCode) + '&limit=1';
+      var response = await fetch(url, { cache: 'no-store' });
+      var payload = await response.json();
+      if (payload.records && payload.records.length > 0) {
+        return payload.records[0];
+      }
+      return null;
+    }
+
+    async function refreshTwinData() {
+      if (!loaded) {
+        return;
+      }
+      try {
+        var cement = await fetchLatest('cement_zone');
+        var timber = await fetchLatest('timber_zone');
+        updateZone('cement_zone', cement);
+        updateZone('timber_zone', timber);
+        setStatus('数据已同步');
+      } catch (error) {
+        console.error(error);
+        setStatus('数据接口异常');
+      }
+    }
+
+    function bindClick() {
+      if (!app || !app.on) {
+        return;
+      }
+      app.on('click', function (event) {
+        var object = event.object || event.pickedObject;
+        if (object && object.name) {
+          setStatus(object.name);
+        }
+      });
+    }
+
+    function start() {
+      if (!window.THING) {
+        setStatus('SDK 加载失败');
+        showTip('ThingJS SDK 没有加载成功，请检查网络。');
+        return;
+      }
+      try {
+        app = new THING.App({
+          container: 'app',
+          url: SCENE_URL,
+          background: '#eef3f8'
+        });
+        app.on('load', function (event) {
+          loaded = true;
+          hideTip();
+          setStatus('场景已加载');
+          if (app.level && event && event.campus) {
+            app.level.change(event.campus);
+          }
+          bindClick();
+          refreshTwinData();
+          setInterval(refreshTwinData, 5000);
+        });
+      } catch (error) {
+        console.error(error);
+        setStatus('场景加载失败');
+        showShareFallback();
+        showTip('SDK 场景地址暂不可用，已切换到分享场景预览。');
+      }
+    }
+
+    window.addEventListener('load', start);
+  </script>
+</body>
+</html>

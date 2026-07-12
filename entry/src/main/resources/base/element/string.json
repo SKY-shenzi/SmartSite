@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "智慧工地管理模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "智慧工地主页"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "智慧工地"
+    },
+    {
+      "name": "hello",
+      "value": "智慧工地"
+    },
+    {
+      "name": "frist",
+      "value": "智慧工地桌面服务卡片"
+    },
+    {
+      "name": "widget_display_name",
+      "value": "工地概览卡"
+    },
+    {
+      "name": "widget_desc",
+      "value": "展示工地人数、监控、材料区温湿度和告警状态"
+    }
+  ]
+}
