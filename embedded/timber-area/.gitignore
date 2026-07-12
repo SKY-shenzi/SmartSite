@@ -1,0 +1,50 @@
+# Build output
+build/
+output/
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.elf
+*.bin
+*.hex
+*.map
+*.lst
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Compiled Python files
+__pycache__/
+*.py[cod]
+
+# Dependency directories
+node_modules/
+
+# CMake generated
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+!CMakeLists.txt
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*.log
+
+# Archive files (don't track compressed archives)
+*.zip
+*.tar.gz
+*.tar
+*.rar
+*.7z

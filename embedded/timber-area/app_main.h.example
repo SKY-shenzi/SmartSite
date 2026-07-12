@@ -1,0 +1,30 @@
+#ifndef _MAIN_H
+#define _MAIN_H
+
+// ============================================================
+// 配置文件模板
+// 使用前请复制为 app_main.h 并填入实际配置信息
+// ============================================================
+
+// MQTT 服务器配置
+#define SERVER_IP_ADDR          "your-server.iotda-device.cn-north-4.myhuaweicloud.com"
+#define SERVER_IP_PORT          1883
+
+// MQTT 主题配置
+#define MQTT_CMDTOPIC_SUB       "$oc/devices/your-device-id/sys/commands/#"
+#define MQTT_DATATOPIC_PUB      "$oc/devices/your-device-id/sys/properties/report"
+#define MQTT_CLIENT_RESPONSE    "$oc/devices/your-device-id/sys/commands/response/request_id=%s"
+
+#define IOT
+// 华为云 IoTDA 设备认证信息（在华为云控制台创建设备后获取）
+#ifdef IOT
+#define CLIENT_ID               "your-device-id_0_0_2025010112"
+#define DEVICEID                "your-device-id"
+#define CLIENTPASSWORD          "your-device-secret"
+#endif
+
+// WiFi 热点配置
+#define CONFIG_WIFI_SSID        "YourWiFiSSID"
+#define CONFIG_WIFI_PWD         "YourWiFiPassword"
+
+#endif

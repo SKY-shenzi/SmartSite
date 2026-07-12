@@ -1,0 +1,11 @@
+config LDR_ADC_CHANNEL
+    int
+    prompt "set the ldr adc channel."
+    default 5
+    depends on ENABLE_HUAWEIIOT
+
+config MQ2_ADC_CHANNEL
+    int
+    prompt "set the mq2 smoke adc channel."
+    default 0
+    depends on ENABLE_HUAWEIIOT
